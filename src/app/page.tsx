@@ -205,12 +205,12 @@ export default function Home() {
 
               {/* Left Character */}
               <div id="char-left" className="absolute top-[10%] -left-[10%] w-[50vw] max-w-[800px] aspect-square">
-                <img src="/character-left-new.png" alt="Left Character" className="absolute inset-0 w-full h-full object-contain" />
+                <img src="/character-left-new.PNG" alt="Left Character" className="absolute inset-0 w-full h-full object-contain" />
               </div>
 
               {/* Right Character */}
               <div id="char-right" className="absolute top-[20%] -right-[10%] w-[50vw] max-w-[800px] aspect-square">
-                <img src="/character-right-new.png" alt="Right Character" className="absolute inset-0 w-full h-full object-contain" />
+                <img src="/character-right-new.PNG" alt="Right Character" className="absolute inset-0 w-full h-full object-contain" />
               </div>
             </div>
 
@@ -262,7 +262,7 @@ export default function Home() {
         <div className="fade-up-element w-full lg:w-2/5 will-change-transform">
           <div className="aspect-[4/5] w-full max-w-md mx-auto bg-zinc-900/30 rounded-3xl border border-zinc-800/50 backdrop-blur-md overflow-hidden relative group p-2">
             <div className="w-full h-full rounded-2xl bg-zinc-900 relative overflow-hidden">
-              <Image src="/portrait-new-1.png" alt="Shubham Bhatt" fill className="object-cover transition-transform duration-1000 group-hover:scale-105 grayscale hover:grayscale-0" />
+              <Image src="/portrait-new-1.PNG" alt="Shubham Bhatt" fill className="object-cover transition-transform duration-1000 group-hover:scale-105 grayscale hover:grayscale-0" />
             </div>
           </div>
         </div>
