@@ -135,7 +135,7 @@ export default function Home() {
 
     // Phase 3: Cosmic Name Rise (Locked to scroll wheel)
     heroTl.to('#cosmic-name', {
-      y: '25vh',       // Stops in the lower half of the screen
+      y: '22vh',       // Stops in the lower half of the screen
       opacity: 1,
       scale: 1,
       duration: 3.6,
@@ -215,7 +215,7 @@ export default function Home() {
             </div>
 
             {/* Reveal Layer: Cosmic Background (Expands over everything) */}
-            <div id="burn-container" className="absolute inset-0 z-10 w-full h-full pointer-events-none" style={{ clipPath: 'circle(0% at 44.2% 51%)' }}>
+            <div id="burn-container" className="absolute inset-0 z-10 w-full h-full pointer-events-none" style={{ clipPath: 'circle(0% at 45% 51%)' }}>
               <img src="/space-bg.png" alt="Cosmic Background" className="absolute inset-0 w-full h-full object-cover" />
 
               {/* Cosmic Name Reveal */}
@@ -228,7 +228,7 @@ export default function Home() {
 
             {/* Text Content (Stays on top of everything) */}
             <div id="hero-text-block" className="absolute top-1/2 left-1/2 z-20 flex flex-col items-center text-center whitespace-nowrap will-change-transform">
-              <h1 className="text-6xl lg:text-9xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)]">
+              <h1 className="text-6xl lg:text-8xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)]">
                 The<br />
                 <span className="italic font-serif font-light bg-zinc-800">Renaissance</span><br />
                 Portfolio
