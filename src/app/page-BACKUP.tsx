@@ -51,6 +51,7 @@ export default function Home() {
   const leftColRef = useRef<HTMLDivElement>(null);
   const rightColRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useGSAP(() => {
     // Initial load state: Centered, but invisible and shifted down slightly
@@ -118,15 +119,25 @@ export default function Home() {
 
       // Text acts as an editorial anchor: it shifts down and left smoothly
       heroTl.to('#hero-text-block', {
-        x: isDesktop ? '-35vw' : '-8vw',
-        y: isDesktop ? '35vh' : '9vh',
-        scale: isDesktop ? 0.5 : 0.8,
-        duration: 2.3,     // Matches the hands' full 4-second animation
+        x: isDesktop ? '-35vw' : '0vw', // Centered on mobile
+        y: isDesktop ? '35vh' : '15vh',
+        scale: isDesktop ? 0.5 : 0.85,
+        duration: 2.3,
         ease: 'power2.inOut'
       }, 0);
+
+      // Phase 3: Cosmic Name Rise (MOVED INSIDE MATCHMEDIA)
+      // On mobile, it stops lower down (35vh) so the stacked text doesn't hit the header
+      heroTl.to('#cosmic-name', {
+        y: isDesktop ? '22vh' : '40vh', 
+        opacity: 1,
+        scale: 1,
+        duration:3.3,
+        ease: 'none'
+      }, 1.5);
     });
 
-    // Phase 2: Expanding Cosmic Reveal (Inside out)
+    // Phase 2: Expanding Cosmic Reveal (Inside out) - Keep this OUTSIDE matchMedia
     heroTl.to('#burn-container', {
       clipPath: 'circle(150% at 50% 50%)',
       duration: 4,
@@ -134,13 +145,7 @@ export default function Home() {
     }, 1.1);
 
     // Phase 3: Cosmic Name Rise (Locked to scroll wheel)
-    heroTl.to('#cosmic-name', {
-      y: '25vh',       // Stops in the lower half of the screen
-      opacity: 1,
-      scale: 1,
-      duration: 3.6,
-      ease: 'none'
-    }, 1.5);
+   
 
   }, []);
 
@@ -182,7 +187,7 @@ export default function Home() {
         {/* ─── GLASSMORPHIC HEADER ─── */}
         <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 lg:px-12 py-4 bg-zinc-950/60 backdrop-blur-lg border-b border-zinc-800/50">
           <div className="text-xl font-bold tracking-tighter text-zinc-100">SB.</div>
-          <nav className="flex gap-6">
+          <nav className="hidden md:flex gap-6">
             {["About", "Experience", "Leadership", "Work", "Services", "Contact"].map((item) => (
               <a
                 key={item}
@@ -193,7 +198,46 @@ export default function Home() {
               </a>
             ))}
           </nav>
+          <button
+            type="button"
+            className="block md:hidden text-zinc-100"
+            onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Open mobile menu"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
         </header>
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-zinc-950/95 backdrop-blur-2xl transition-opacity">
+            <button
+              type="button"
+              className="absolute top-6 right-6 p-2 text-zinc-400 hover:text-white"
+              onClick={() => setIsMobileMenuOpen(false)}
+              aria-label="Close mobile menu"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            <nav className="flex flex-col items-center">
+              {["About", "Experience", "Leadership", "Work", "Services", "Contact"].map((item) => (
+                <a
+                  key={item}
+                  href={item === "Leadership" ? "#achievements" : `#${item.toLowerCase()}`}
+                  className="text-4xl sm:text-5xl font-medium tracking-tighter text-zinc-400 hover:text-zinc-100 transition-colors py-4"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {item}
+                </a>
+              ))}
+            </nav>
+          </div>
+        )}
 
         {/* ─── HERO ─── */}
         <section id="hero-container" className="relative w-full h-[300vh]">
@@ -205,22 +249,22 @@ export default function Home() {
 
               {/* Left Character */}
               <div id="char-left" className="absolute top-[10%] -left-[10%] w-[50vw] max-w-[800px] aspect-square">
-                <img src="/character-left-new.png" alt="Left Character" className="absolute inset-0 w-full h-full object-contain" />
+                <img src="/character-left-new.PNG" alt="Left Character" className="absolute inset-0 w-full h-full object-contain" />
               </div>
 
               {/* Right Character */}
               <div id="char-right" className="absolute top-[20%] -right-[10%] w-[50vw] max-w-[800px] aspect-square">
-                <img src="/character-right-new.png" alt="Right Character" className="absolute inset-0 w-full h-full object-contain" />
+                <img src="/character-right-new.PNG" alt="Right Character" className="absolute inset-0 w-full h-full object-contain" />
               </div>
             </div>
 
             {/* Reveal Layer: Cosmic Background (Expands over everything) */}
-            <div id="burn-container" className="absolute inset-0 z-10 w-full h-full pointer-events-none" style={{ clipPath: 'circle(0% at 44.2% 51%)' }}>
+            <div id="burn-container" className="absolute inset-0 z-10 w-full h-full pointer-events-none" style={{ clipPath: 'circle(0% at 45% 51%)' }}>
               <img src="/space-bg.png" alt="Cosmic Background" className="absolute inset-0 w-full h-full object-cover" />
 
               {/* Cosmic Name Reveal */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <h2 id="cosmic-name" className="text-7xl lg:text-9xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)] will-change-transform">
+                <h2 id="cosmic-name" className=" text-7xl lg:text-9xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)] will-change-transform">
                   Shubham Bhatt
                 </h2>
               </div>
@@ -228,7 +272,7 @@ export default function Home() {
 
             {/* Text Content (Stays on top of everything) */}
             <div id="hero-text-block" className="absolute top-1/2 left-1/2 z-20 flex flex-col items-center text-center whitespace-nowrap will-change-transform">
-              <h1 className="text-6xl lg:text-9xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)]">
+              <h1 className="text-6xl lg:text-8xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)]">
                 The<br />
                 <span className="italic font-serif font-light bg-zinc-800">Renaissance</span><br />
                 Portfolio
@@ -262,7 +306,7 @@ export default function Home() {
         <div className="fade-up-element w-full lg:w-2/5 will-change-transform">
           <div className="aspect-[4/5] w-full max-w-md mx-auto bg-zinc-900/30 rounded-3xl border border-zinc-800/50 backdrop-blur-md overflow-hidden relative group p-2">
             <div className="w-full h-full rounded-2xl bg-zinc-900 relative overflow-hidden">
-              <Image src="/portrait-new-1.png" alt="Shubham Bhatt" fill className="object-cover transition-transform duration-1000 group-hover:scale-105 grayscale hover:grayscale-0" />
+              <Image src="/portrait-new-1.PNG" alt="Shubham Bhatt" fill className="object-cover transition-transform duration-1000 group-hover:scale-105 grayscale hover:grayscale-0" />
             </div>
           </div>
         </div>

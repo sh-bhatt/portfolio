@@ -51,6 +51,7 @@ export default function Home() {
   const leftColRef = useRef<HTMLDivElement>(null);
   const rightColRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useGSAP(() => {
     // Initial load state: Centered, but invisible and shifted down slightly
@@ -118,15 +119,25 @@ export default function Home() {
 
       // Text acts as an editorial anchor: it shifts down and left smoothly
       heroTl.to('#hero-text-block', {
-        x: isDesktop ? '-35vw' : '-8vw',
-        y: isDesktop ? '35vh' : '9vh',
-        scale: isDesktop ? 0.5 : 0.8,
-        duration: 2.3,     // Matches the hands' full 4-second animation
+        x: isDesktop ? '-35vw' : '0vw', // Centered on mobile
+        y: isDesktop ? '35vh' : '15vh',
+        scale: isDesktop ? 0.5 : 0.85,
+        duration: 2.3,
         ease: 'power2.inOut'
       }, 0);
+
+      // Phase 3: Cosmic Name Rise (MOVED INSIDE MATCHMEDIA)
+      // On mobile, it stops lower down (35vh) so the stacked text doesn't hit the header
+      heroTl.to('#cosmic-name', {
+        y: isDesktop ? '22vh' : '40vh', 
+        opacity: 1,
+        scale: 1,
+        duration:3.3,
+        ease: 'none'
+      }, 1.5);
     });
 
-    // Phase 2: Expanding Cosmic Reveal (Inside out)
+    // Phase 2: Expanding Cosmic Reveal (Inside out) - Keep this OUTSIDE matchMedia
     heroTl.to('#burn-container', {
       clipPath: 'circle(150% at 50% 50%)',
       duration: 4,
@@ -134,13 +145,7 @@ export default function Home() {
     }, 1.1);
 
     // Phase 3: Cosmic Name Rise (Locked to scroll wheel)
-    heroTl.to('#cosmic-name', {
-      y: '22vh',       // Stops in the lower half of the screen
-      opacity: 1,
-      scale: 1,
-      duration: 3.6,
-      ease: 'none'
-    }, 1.5);
+   
 
   }, []);
 
@@ -182,7 +187,7 @@ export default function Home() {
         {/* ─── GLASSMORPHIC HEADER ─── */}
         <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 lg:px-12 py-4 bg-zinc-950/60 backdrop-blur-lg border-b border-zinc-800/50">
           <div className="text-xl font-bold tracking-tighter text-zinc-100">SB.</div>
-          <nav className="flex gap-6">
+          <nav className="hidden md:flex items-center gap-6">
             {["About", "Experience", "Leadership", "Work", "Services", "Contact"].map((item) => (
               <a
                 key={item}
@@ -192,9 +197,78 @@ export default function Home() {
                 {item}
               </a>
             ))}
+            
+            {/* Desktop Resume Button */}
+            <a
+              href="https://drive.google.com/file/d/1SnHC4wde-7Q9hf2234QMJIX1SK2KiC-A/view?usp=drive_link"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium px-5 py-2 rounded-full border border-zinc-700 text-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 hover:border-transparent transition-all duration-300"
+            >
+              Resume
+            </a>
           </nav>
+          <button
+            type="button"
+            className="block md:hidden text-zinc-100"
+            onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Open mobile menu"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
         </header>
+       {/* ─── COMPACT DROPDOWN MENU ─── */}
+        {/* 1. Invisible click-away backdrop */}
+        <div 
+          className={`fixed inset-0 z-[55] md:hidden ${isMobileMenuOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
 
+        {/* 2. The Small Dropdown Box */}
+        <div 
+          className={`fixed top-20 right-6 z-[60] w-48 flex flex-col bg-zinc-950/65 backdrop-blur-2xl border border-zinc-800/60 rounded-2xl p-2 shadow-2xl transition-all duration-300 origin-top-right md:hidden ${
+            isMobileMenuOpen ? "scale-100 opacity-100 pointer-events-auto" : "scale-95 opacity-0 pointer-events-none"
+          }`}
+        >
+          {/* Refined, Minimalist Links */}
+          {/* Refined, Minimalist Links */}
+          <nav className="flex flex-col">
+            {["About", "Experience", "Leadership", "Work", "Services", "Contact"].map((item) => (
+              <a
+                key={item}
+                href={item === "Leadership" ? "#achievements" : `#${item.toLowerCase()}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-sm font-medium tracking-wide text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 transition-all px-4 py-3 rounded-xl flex justify-between items-center group"
+              >
+                <span>{item}</span>
+                <span className="text-zinc-600 group-hover:text-zinc-400 transition-colors text-xs font-light">↗</span>
+              </a>
+            ))}
+            
+            {/* Separator Line */}
+            <div className="h-px bg-zinc-800/60 my-1 mx-2"></div>
+            
+            {/* Mobile Resume Link */}
+            <a
+              href="https://drive.google.com/file/d/1SnHC4wde-7Q9hf2234QMJIX1SK2KiC-A/view?usp=drive_link"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-sm font-medium tracking-wide text-zinc-200 hover:text-zinc-100 hover:bg-zinc-800/50 transition-all px-4 py-3 rounded-xl flex justify-between items-center group"
+            >
+              <span>Resume</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </a>
+          </nav>
+        </div>
         {/* ─── HERO ─── */}
         <section id="hero-container" className="relative w-full h-[300vh]">
           <div id="hero-sticky" className="sticky top-0 left-0 w-full h-screen overflow-hidden bg-zinc-950">
@@ -220,7 +294,7 @@ export default function Home() {
 
               {/* Cosmic Name Reveal */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <h2 id="cosmic-name" className="text-7xl lg:text-9xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)] will-change-transform">
+                <h2 id="cosmic-name" className=" text-7xl lg:text-9xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)] will-change-transform">
                   Shubham Bhatt
                 </h2>
               </div>
