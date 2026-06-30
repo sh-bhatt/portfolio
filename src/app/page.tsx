@@ -65,17 +65,17 @@ export default function Home() {
     });
 
     initTl.to('#loader-logo', { opacity: 1, duration: 1, ease: 'power2.out' })
-          // Progress line fills smoothly from left to right
-          .to('#loader-progress', { x: '0%', duration: 1.5, ease: 'power3.inOut' }, '<0.2')
-          // The entire black preloader screen slides up and out of the way
-          .to('#preloader', { yPercent: -100, duration: 1.2, ease: 'power4.inOut', delay: 0.2 })
-          // Hero text floats up and fades in EXACTLY as the curtain rises over it
-          .to('#hero-text-block', {
-            yPercent: -50,
-            opacity: 1,
-            duration: 1.5,
-            ease: 'power3.out'
-          }, '-=0.8'); // The negative offset overlaps this with the curtain rise
+      // Progress line fills smoothly from left to right
+      .to('#loader-progress', { x: '0%', duration: 1.5, ease: 'power3.inOut' }, '<0.2')
+      // The entire black preloader screen slides up and out of the way
+      .to('#preloader', { yPercent: -100, duration: 1.2, ease: 'power4.inOut', delay: 0.2 })
+      // Hero text floats up and fades in EXACTLY as the curtain rises over it
+      .to('#hero-text-block', {
+        yPercent: -50,
+        opacity: 1,
+        duration: 1.5,
+        ease: 'power3.out'
+      }, '-=0.8'); // The negative offset overlaps this with the curtain rise
 
     // Left hand (Adam): Move down (positive Y), tilt up (negative rotation)
     gsap.set('#char-left', { rotation: 0, yPercent: 0, scale: 0.6 });
@@ -104,17 +104,17 @@ export default function Home() {
       let isDesktop = context?.conditions?.isDesktop as boolean;
 
       // Phase 1: Hands glide together while maintaining their new inverted heights and tilts
-      heroTl.to('#char-left', { 
-        x: isDesktop ? '35vw' : '9vw', 
-        yPercent: 0, 
-        scale: isDesktop ? 1.1 : 0.7, 
-        duration: 4 
+      heroTl.to('#char-left', {
+        x: isDesktop ? '35vw' : '9vw',
+        yPercent: 0,
+        scale: isDesktop ? 1.1 : 0.7,
+        duration: 4
       }, 0);
-      heroTl.to('#char-right', { 
-        x: isDesktop ? '-35vw' : '-9vw', 
-        yPercent: isDesktop ? -32 : -8, 
-        scale: isDesktop ? 1.1 : 0.7, 
-        duration: 4 
+      heroTl.to('#char-right', {
+        x: isDesktop ? '-35vw' : '-9vw',
+        yPercent: isDesktop ? -32 : -8,
+        scale: isDesktop ? 1.1 : 0.7,
+        duration: 4
       }, 0);
 
       // Text acts as an editorial anchor: it shifts down and left smoothly
@@ -129,10 +129,10 @@ export default function Home() {
       // Phase 3: Cosmic Name Rise (MOVED INSIDE MATCHMEDIA)
       // On mobile, it stops lower down (35vh) so the stacked text doesn't hit the header
       heroTl.to('#cosmic-name', {
-        y: isDesktop ? '22vh' : '40vh', 
+        y: isDesktop ? '22vh' : '40vh',
         opacity: 1,
         scale: 1,
-        duration:3.3,
+        duration: 3.3,
         ease: 'none'
       }, 1.5);
     });
@@ -145,7 +145,7 @@ export default function Home() {
     }, 1.1);
 
     // Phase 3: Cosmic Name Rise (Locked to scroll wheel)
-   
+
 
   }, []);
 
@@ -197,7 +197,7 @@ export default function Home() {
                 {item}
               </a>
             ))}
-            
+
             {/* Desktop Resume Button */}
             <a
               href="https://drive.google.com/file/d/1SnHC4wde-7Q9hf2234QMJIX1SK2KiC-A/view?usp=drive_link"
@@ -221,18 +221,17 @@ export default function Home() {
             </svg>
           </button>
         </header>
-       {/* ─── COMPACT DROPDOWN MENU ─── */}
+        {/* ─── COMPACT DROPDOWN MENU ─── */}
         {/* 1. Invisible click-away backdrop */}
-        <div 
+        <div
           className={`fixed inset-0 z-[55] md:hidden ${isMobileMenuOpen ? "pointer-events-auto" : "pointer-events-none"}`}
           onClick={() => setIsMobileMenuOpen(false)}
         />
 
         {/* 2. The Small Dropdown Box */}
-        <div 
-          className={`fixed top-20 right-6 z-[60] w-48 flex flex-col bg-zinc-950/65 backdrop-blur-2xl border border-zinc-800/60 rounded-2xl p-2 shadow-2xl transition-all duration-300 origin-top-right md:hidden ${
-            isMobileMenuOpen ? "scale-100 opacity-100 pointer-events-auto" : "scale-95 opacity-0 pointer-events-none"
-          }`}
+        <div
+          className={`fixed top-20 right-6 z-[60] w-48 flex flex-col bg-zinc-950/65 backdrop-blur-2xl border border-zinc-800/60 rounded-2xl p-2 shadow-2xl transition-all duration-300 origin-top-right md:hidden ${isMobileMenuOpen ? "scale-100 opacity-100 pointer-events-auto" : "scale-95 opacity-0 pointer-events-none"
+            }`}
         >
           {/* Refined, Minimalist Links */}
           {/* Refined, Minimalist Links */}
@@ -248,10 +247,10 @@ export default function Home() {
                 <span className="text-zinc-600 group-hover:text-zinc-400 transition-colors text-xs font-light">↗</span>
               </a>
             ))}
-            
+
             {/* Separator Line */}
             <div className="h-px bg-zinc-800/60 my-1 mx-2"></div>
-            
+
             {/* Mobile Resume Link */}
             <a
               href="https://drive.google.com/file/d/1SnHC4wde-7Q9hf2234QMJIX1SK2KiC-A/view?usp=drive_link"
@@ -302,6 +301,7 @@ export default function Home() {
 
             {/* Text Content (Stays on top of everything) */}
             <div id="hero-text-block" className="absolute top-1/2 left-1/2 z-20 flex flex-col items-center text-center whitespace-nowrap will-change-transform">
+
               <h1 className="text-6xl lg:text-8xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)]">
                 The<br />
                 <span className="italic font-serif font-light bg-zinc-800">Renaissance</span><br />
@@ -312,242 +312,268 @@ export default function Home() {
           </div>
         </section>
 
-      {/* ─── ABOUT ─── */}
-      <section id="about" className="relative z-20 bg-zinc-950 w-full py-32 px-6 lg:px-12 max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
-        {/* Left Column: Editorial Text */}
-        <div className="fade-up-element w-full lg:w-3/5 space-y-8 will-change-transform">
-          <h2 className="text-4xl lg:text-5xl font-medium tracking-tight text-zinc-100">
-            Engineering with intent.
-          </h2>
-          <div className="space-y-6 text-lg lg:text-xl text-zinc-400 leading-relaxed max-w-2xl">
-            <p>
-              I'm Shubham Bhatt, a full-stack developer based in Uttar Pradesh. Currently wrapping up my B.Tech in Computer Science, I specialize in architecting high-performance web applications using React, Next.js, and TypeScript.
-            </p>
-            <p>
-              My workflow bridges clean, scalable architecture with modern AI tooling—leveraging Cursor and Copilot to build and ship faster without compromising on quality. I am strictly focused on core software engineering roles where I can solve complex problems and build products that actually matter.
-            </p>
-            <p>
-              When I'm not pushing code, I'm usually traveling, and throwing myself into new adventures just to see where the experience takes me.
-            </p>
-          </div>
-        </div>
-
-        {/* Right Column: Glassmorphic Portrait Slot */}
-        <div className="fade-up-element w-full lg:w-2/5 will-change-transform">
-          <div className="aspect-[4/5] w-full max-w-md mx-auto bg-zinc-900/30 rounded-3xl border border-zinc-800/50 backdrop-blur-md overflow-hidden relative group p-2">
-            <div className="w-full h-full rounded-2xl bg-zinc-900 relative overflow-hidden">
-              <Image src="/portrait-new-1.PNG" alt="Shubham Bhatt" fill className="object-cover transition-transform duration-1000 group-hover:scale-105 grayscale hover:grayscale-0" />
+        {/* ─── ABOUT ─── */}
+        <section id="about" className="relative z-20 bg-zinc-950 w-full py-32 px-6 lg:px-12 max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
+          {/* Left Column: Editorial Text */}
+          <div className="fade-up-element w-full lg:w-3/5 space-y-8 will-change-transform">
+            <h2 className="text-4xl lg:text-5xl font-medium tracking-tight text-zinc-100">
+              Engineering with intent.
+            </h2>
+            <div className="space-y-6 text-lg lg:text-xl text-zinc-400 leading-relaxed max-w-2xl">
+              <p>
+                I'm Shubham Bhatt, a full-stack developer based in Uttar Pradesh. Currently wrapping up my B.Tech in Computer Science, I specialize in architecting high-performance web applications using React, Next.js, and TypeScript.
+              </p>
+              <p>
+                My workflow bridges clean, scalable architecture with modern AI tooling—leveraging Cursor and Copilot to build and ship faster without compromising on quality. I am strictly focused on core software engineering roles where I can solve complex problems and build products that actually matter.
+              </p>
+              <p>
+                When I'm not pushing code, I'm usually traveling, and throwing myself into new adventures just to see where the experience takes me.
+              </p>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ─── EXPERIENCE ─── */}
-      <section id="experience" className="relative z-10 w-full py-32 px-6 lg:px-12 max-w-7xl mx-auto">
-        <h2 className="text-4xl lg:text-5xl font-medium tracking-tight text-zinc-100 mb-16 fade-up-element will-change-transform">
-          Experience
-        </h2>
-        <div className="flex flex-col gap-8 fade-up-element will-change-transform">
-          <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 fade-up-element will-change-transform">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-              <div>
-                <h3 className="text-2xl font-medium text-zinc-100 mb-1">Web Development Intern</h3>
-                <p className="text-lg text-zinc-400">Explorin Academy</p>
+          {/* Right Column: Glassmorphic Portrait Slot */}
+          <div className="fade-up-element w-full lg:w-2/5 will-change-transform">
+            <div className="aspect-[4/5] w-full max-w-md mx-auto bg-zinc-900/30 rounded-3xl border border-zinc-800/50 backdrop-blur-md overflow-hidden relative group p-2">
+              <div className="w-full h-full rounded-2xl bg-zinc-900 relative overflow-hidden">
+                <Image src="/portrait-new-1.PNG" alt="Shubham Bhatt" fill className="object-cover transition-transform duration-1000 group-hover:scale-105 grayscale hover:grayscale-0" />
               </div>
-              <div className="mt-4 md:mt-0 text-left md:text-right">
-                <span className="inline-block px-4 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 text-sm font-medium tracking-wider text-zinc-300">
-                  Jul 2025 — Aug 2025
+            </div>
+          </div>
+        </section>
+
+        {/* ─── EXPERIENCE ─── */}
+        <section id="experience" className="relative z-10 w-full py-32 px-6 lg:px-12 max-w-7xl mx-auto">
+          <h2 className="text-4xl lg:text-5xl font-medium tracking-tight text-zinc-100 mb-16 fade-up-element will-change-transform">
+            Experience
+          </h2>
+          <div className="flex flex-col gap-8 fade-up-element will-change-transform">
+            <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 fade-up-element will-change-transform">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <div>
+                  <h3 className="text-2xl font-medium text-zinc-100 mb-1">Web Development Intern</h3>
+                  <p className="text-lg text-zinc-400">Explorin Academy</p>
+                </div>
+                <div className="mt-4 md:mt-0 text-left md:text-right">
+                  <span className="inline-block px-4 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 text-sm font-medium tracking-wider text-zinc-300">
+                    Jul 2025 — Aug 2025
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-zinc-200 leading-relaxed mb-6 font-medium">
+                Contributing to production-grade full-stack applications with focus on scalability and performance.
+              </p>
+
+              <ul className="list-disc list-outside ml-5 text-zinc-400 space-y-4 mb-8 leading-relaxed max-w-4xl">
+                <li>
+                  Built full-stack applications using Next.js, TypeScript, and GraphQL with Prisma ORM, managing complex database relationships and improving system efficiency.
+                </li>
+                <li>
+                  Implemented caching strategies and optimized API workflows with engineering teams.
+                </li>
+              </ul>
+
+              {/* Metrics */}
+              <div className="flex flex-wrap gap-4 mb-8">
+                <span className="px-3 py-1.5 rounded-md border border-zinc-700/50 bg-zinc-800/30 text-sm font-medium text-zinc-300 tracking-wide">
+                  API over-fetching ↓35%
+                </span>
+                <span className="px-3 py-1.5 rounded-md border border-zinc-700/50 bg-zinc-800/30 text-sm font-medium text-zinc-300 tracking-wide">
+                  Response time ↓30%
                 </span>
               </div>
-            </div>
 
-            <p className="text-zinc-200 leading-relaxed mb-6 font-medium">
-              Contributing to production-grade full-stack applications with focus on scalability and performance.
-            </p>
-
-            <ul className="list-disc list-outside ml-5 text-zinc-400 space-y-4 mb-8 leading-relaxed max-w-4xl">
-              <li>
-                Built full-stack applications using Next.js, TypeScript, and GraphQL with Prisma ORM, managing complex database relationships and improving system efficiency.
-              </li>
-              <li>
-                Implemented caching strategies and optimized API workflows with engineering teams.
-              </li>
-            </ul>
-
-            {/* Metrics */}
-            <div className="flex flex-wrap gap-4 mb-8">
-              <span className="px-3 py-1.5 rounded-md border border-zinc-700/50 bg-zinc-800/30 text-sm font-medium text-zinc-300 tracking-wide">
-                API over-fetching ↓35%
-              </span>
-              <span className="px-3 py-1.5 rounded-md border border-zinc-700/50 bg-zinc-800/30 text-sm font-medium text-zinc-300 tracking-wide">
-                Response time ↓30%
-              </span>
-            </div>
-
-            {/* Tech Stack */}
-            <div className="pt-6 border-t border-zinc-800/50 text-sm font-medium text-zinc-500 tracking-wide">
-              Next.js · TypeScript · GraphQL · Prisma ORM · SQL Databases · MongoDB
+              {/* Tech Stack */}
+              <div className="pt-6 border-t border-zinc-800/50 text-sm font-medium text-zinc-500 tracking-wide">
+                Next.js · TypeScript · GraphQL · Prisma ORM · SQL Databases · MongoDB
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ─── LEADERSHIP & ACHIEVEMENTS ─── */}
-      <section id="achievements" className="relative z-10 w-full py-32 px-6 lg:px-12 max-w-7xl mx-auto border-t border-zinc-900/50">
-        <h2 className="text-4xl lg:text-5xl font-medium tracking-tight text-zinc-100 mb-16 fade-up-element will-change-transform">
-          Leadership & Achievements
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 fade-up-element will-change-transform">
-          {/* Card 1: Utkarsh */}
-          <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
-            <h3 className="text-2xl font-medium text-zinc-100 mb-2">Lead Event Manager</h3>
-            <p className="text-lg text-zinc-400 mb-6">Utkarsh Cultural Fest</p>
-            <p className="text-zinc-400 leading-relaxed font-medium">
-              Orchestrated logistics, managed cross-functional teams, and executed large-scale events for MIT Moradabad's annual fest. Developed razor-sharp communication and time management skills under high-pressure scenarios.
-            </p>
+        {/* ─── LEADERSHIP & ACHIEVEMENTS ─── */}
+        <section id="achievements" className="relative z-10 w-full py-32 px-6 lg:px-12 max-w-7xl mx-auto border-t border-zinc-900/50">
+          <h2 className="text-4xl lg:text-5xl font-medium tracking-tight text-zinc-100 mb-16 fade-up-element will-change-transform">
+            Leadership & Achievements
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 fade-up-element will-change-transform">
+            {/* Card 1: Utkarsh */}
+            <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
+              <h3 className="text-2xl font-medium text-zinc-100 mb-2">Lead Event Manager</h3>
+              <p className="text-lg text-zinc-400 mb-6">Utkarsh Cultural Fest</p>
+              <p className="text-zinc-400 leading-relaxed font-medium">
+                Orchestrated logistics, managed cross-functional teams, and executed large-scale events for MIT Moradabad's annual fest. Developed razor-sharp communication and time management skills under high-pressure scenarios.
+              </p>
+            </div>
+
+            {/* Card 2: Football */}
+            <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
+              <h3 className="text-2xl font-medium text-zinc-100 mb-2">Elite Athletic Training</h3>
+              <p className="text-lg text-zinc-400 mb-6">Baichung Bhutia Football Academy</p>
+              <p className="text-zinc-400 leading-relaxed font-medium">
+                Cultivated relentless physical discipline and teamwork. While the early ambition was to turn professional on the pitch, the high-performance execution and tactical mindset learned there translate directly into my approach to software architecture today.
+              </p>
+            </div>
           </div>
+        </section>
 
-          {/* Card 2: Football */}
-          <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
-            <h3 className="text-2xl font-medium text-zinc-100 mb-2">Elite Athletic Training</h3>
-            <p className="text-lg text-zinc-400 mb-6">Baichung Bhutia Football Academy</p>
-            <p className="text-zinc-400 leading-relaxed font-medium">
-              Cultivated relentless physical discipline and teamwork. While the early ambition was to turn professional on the pitch, the high-performance execution and tactical mindset learned there translate directly into my approach to software architecture today.
-            </p>
-          </div>
-        </div>
-      </section>
+        {/* ─── SELECTED WORKS ─── */}
+        {/* ─── SELECTED WORKS ─── */}
+        <section
+          id="work"
+          ref={worksSectionRef}
+          className="relative w-full bg-zinc-950"
+        >
+          <div className="flex flex-col lg:flex-row max-w-7xl mx-auto min-h-screen items-start">
+            {/* Left column — pinned */}
+            <div
+              ref={leftColRef}
+              className="lg:w-1/2 w-full lg:sticky lg:top-0 lg:self-start flex flex-col justify-center px-8 py-16 h-screen"
+            >
+              <h2 className="text-4xl sm:text-5xl font-medium tracking-tight text-zinc-100 mb-6">
+                Tech Stack
+              </h2>
 
-      {/* ─── SELECTED WORKS ─── */}
-      <section
-        id="work"
-        ref={worksSectionRef}
-        className="relative w-full bg-zinc-950"
-      >
-        <div className="flex flex-col lg:flex-row max-w-7xl mx-auto min-h-screen items-start">
-          {/* Left column — pinned */}
-          <div
-            ref={leftColRef}
-            className="lg:w-1/2 w-full lg:sticky lg:top-0 lg:self-start flex flex-col justify-center px-8 py-16 h-screen"
-          >
-            <h2 className="text-4xl sm:text-5xl font-medium tracking-tight text-zinc-100 mb-6">
-              Tech Stack
-            </h2>
-            
-            <p className="text-lg text-zinc-400 mb-12 leading-relaxed max-w-md font-medium">
-              A curated architecture of modern tooling designed for scalable infrastructure, high-performance rendering, and a seamless developer experience.
-            </p>
+              <p className="text-lg text-zinc-400 mb-12 leading-relaxed max-w-md font-medium">
+                A curated architecture of modern tooling designed for scalable infrastructure, high-performance rendering, and a seamless developer experience.
+              </p>
 
-            <div className="flex flex-col gap-10">
-              {techCategories.map((category, index) => (
-                <div key={index} className="flex flex-col gap-4">
-                  <h3 className="text-sm font-semibold tracking-widest text-zinc-500 uppercase">
-                    {category.title}
+              <div className="flex flex-col gap-10">
+                {techCategories.map((category, index) => (
+                  <div key={index} className="flex flex-col gap-4">
+                    <h3 className="text-sm font-semibold tracking-widest text-zinc-500 uppercase">
+                      {category.title}
+                    </h3>
+                    <div className="flex flex-wrap gap-2.5">
+                      {category.skills.map((tech) => (
+                        <span
+                          key={tech}
+                          className="px-4 py-1.5 border border-zinc-800 bg-zinc-900/50 text-zinc-300 text-sm tracking-wide rounded-full transition-colors hover:border-zinc-600 hover:text-zinc-100"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right column — scrollable cards */}
+            <div
+              ref={rightColRef}
+              className="lg:w-1/2 w-full flex flex-col gap-8 px-8 py-16"
+            >
+              {/* ─── ACTIVE PROJECT BANNER ─── */}
+              <div className="flex items-start sm:items-center gap-5 p-6 md:p-8 rounded-3xl bg-zinc-900/40 border border-emerald-900/30 backdrop-blur-md will-change-transform project-card relative overflow-hidden group">
+                {/* Subtle green glow behind the card */}
+                <div className="absolute top-0 left-0 w-full h-full bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+
+                {/* Pulsing Green Indicator */}
+                <div className="relative flex h-3 w-3 mt-1.5 sm:mt-0 flex-shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </div>
+
+                <div className="relative z-10">
+                  <h4 className="text-xs font-semibold tracking-widest uppercase text-emerald-500 mb-1.5">
+                    Currently Architecting
+                  </h4>
+                  <h3 className="text-xl md:text-2xl font-medium tracking-tight text-zinc-100">
+                     B2B Enterprise Portal
                   </h3>
-                  <div className="flex flex-wrap gap-2.5">
-                    {category.skills.map((tech) => (
+                  <p className="text-sm text-zinc-400 mt-2 font-medium leading-relaxed">
+                    Building a scalable enterprise portal for wholesale operations and client management.
+                  </p>
+                </div>
+              </div>
+
+              {/* Existing Completed Projects */}
+              {projects.map((project, i) => (
+                <div
+                  key={i}
+                  className="project-card flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 will-change-transform group"
+                >
+                  {/* Image Container */}
+                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-8 bg-zinc-900 border border-zinc-800/50">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
+                    />
+                  </div>
+
+                  <h3 className="text-3xl lg:text-4xl font-medium tracking-tight text-zinc-100 mb-4">
+                    {project.title}
+                  </h3>
+                  <p className="text-zinc-400 leading-relaxed text-lg mb-8 max-w-xl">
+                    {project.subtitle}
+                  </p>
+
+                  <div className="flex flex-wrap gap-3 mb-8">
+                    {project.tags.map((tag) => (
                       <span
-                        key={tech}
-                        className="px-4 py-1.5 border border-zinc-800 bg-zinc-900/50 text-zinc-300 text-sm tracking-wide rounded-full transition-colors hover:border-zinc-600 hover:text-zinc-100"
+                        key={tag}
+                        className="px-4 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 text-xs font-medium tracking-wider text-zinc-300 uppercase"
                       >
-                        {tech}
+                        {tag}
                       </span>
                     ))}
+                  </div>
+
+                  {/* Action Links */}
+                  <div className="flex items-center gap-4 mt-auto">
+                    <a
+                      href={project.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-3 rounded-full bg-zinc-100 text-zinc-950 text-sm font-semibold tracking-wide transition-transform hover:scale-105"
+                    >
+                      Live Site ↗
+                    </a>
+                    <a
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-3 rounded-full border border-zinc-700 text-zinc-300 text-sm font-medium tracking-wide transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                    >
+                      GitHub ↗
+                    </a>
                   </div>
                 </div>
               ))}
             </div>
           </div>
+        </section>
 
-          {/* Right column — scrollable cards */}
-          <div
-            ref={rightColRef}
-            className="lg:w-1/2 w-full flex flex-col gap-8 px-8 py-16"
-          >
-            {projects.map((project, i) => (
-              <div
-                key={i}
-                className="project-card flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 will-change-transform group"
-              >
-                {/* Image Container */}
-                <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-8 bg-zinc-900 border border-zinc-800/50">
-                  <img 
-                    src={project.image} 
-                    alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-                  />
-                </div>
+        {/* ─── SERVICES ─── */}
+        <section id="services" className="relative z-10 bg-zinc-950 w-full py-32 px-6 lg:px-12 max-w-7xl mx-auto">
+          <h2 className="text-4xl lg:text-5xl font-medium tracking-tight text-zinc-100 mb-16 fade-up-element will-change-transform">
+            Services
+          </h2>
 
-                <h3 className="text-3xl lg:text-4xl font-medium tracking-tight text-zinc-100 mb-4">
-                  {project.title}
-                </h3>
-                <p className="text-zinc-400 leading-relaxed text-lg mb-8 max-w-xl">
-                  {project.subtitle}
-                </p>
-                
-                <div className="flex flex-wrap gap-3 mb-8">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-4 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 text-xs font-medium tracking-wider text-zinc-300 uppercase"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Card 1 */}
+            <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
+              <h3 className="text-xl font-medium text-zinc-100 mb-4">Full-Stack Development</h3>
+              <p className="text-zinc-400 leading-relaxed">End-to-end web applications built with modern frameworks, clean architecture, and scalable infrastructure.</p>
+            </div>
 
-                {/* Action Links */}
-                <div className="flex items-center gap-4 mt-auto">
-                  <a 
-                    href={project.liveUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="px-6 py-3 rounded-full bg-zinc-100 text-zinc-950 text-sm font-semibold tracking-wide transition-transform hover:scale-105"
-                  >
-                    Live Site ↗
-                  </a>
-                  <a 
-                    href={project.githubUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="px-6 py-3 rounded-full border border-zinc-700 text-zinc-300 text-sm font-medium tracking-wide transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-                  >
-                    GitHub ↗
-                  </a>
-                </div>
-              </div>
-            ))}
+            {/* Card 2 */}
+            <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 delay-100">
+              <h3 className="text-xl font-medium text-zinc-100 mb-4">API Design & Integration</h3>
+              <p className="text-zinc-400 leading-relaxed">RESTful and GraphQL APIs designed for performance, security, and maintainability.</p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 delay-200">
+              <h3 className="text-xl font-medium text-zinc-100 mb-4">System Architecture</h3>
+              <p className="text-zinc-400 leading-relaxed">Database schema design, cloud deployment strategies, and system-level optimizations.</p>
+            </div>
           </div>
-        </div>
-      </section>
-
-      {/* ─── SERVICES ─── */}
-      <section id="services" className="relative z-10 bg-zinc-950 w-full py-32 px-6 lg:px-12 max-w-7xl mx-auto">
-        <h2 className="text-4xl lg:text-5xl font-medium tracking-tight text-zinc-100 mb-16 fade-up-element will-change-transform">
-          Services
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1 */}
-          <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
-            <h3 className="text-xl font-medium text-zinc-100 mb-4">Full-Stack Development</h3>
-            <p className="text-zinc-400 leading-relaxed">End-to-end web applications built with modern frameworks, clean architecture, and scalable infrastructure.</p>
-          </div>
-
-          {/* Card 2 */}
-          <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 delay-100">
-            <h3 className="text-xl font-medium text-zinc-100 mb-4">API Design & Integration</h3>
-            <p className="text-zinc-400 leading-relaxed">RESTful and GraphQL APIs designed for performance, security, and maintainability.</p>
-          </div>
-
-          {/* Card 3 */}
-          <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 delay-200">
-            <h3 className="text-xl font-medium text-zinc-100 mb-4">System Architecture</h3>
-            <p className="text-zinc-400 leading-relaxed">Database schema design, cloud deployment strategies, and system-level optimizations.</p>
-          </div>
-        </div>
-      </section>
+        </section>
 
         {/* ─── CONTACT / FOOTER ─── */}
         <footer id="contact" className="relative z-10 bg-zinc-950 w-full pt-32 pb-16 px-6 lg:px-12 border-t border-zinc-800/50 mt-32 max-w-7xl mx-auto">
@@ -568,35 +594,35 @@ export default function Home() {
               {/* Social & Resume Links */}
               <div className="flex flex-wrap gap-4 mt-8 md:mt-0">
                 {/* LinkedIn */}
-                <a 
-                  href="https://linkedin.com/in/bhattshubham/" 
-                  target="_blank" 
+                <a
+                  href="https://linkedin.com/in/bhattshubham/"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-6 py-3 rounded-full border border-zinc-800 bg-zinc-900/30 text-zinc-300 text-sm font-medium tracking-wide transition-all hover:bg-zinc-100 hover:text-zinc-950 hover:border-transparent group"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect width="4" height="12" x="2" y="9" /><circle cx="4" cy="4" r="2" /></svg>
                   LinkedIn
                 </a>
 
                 {/* GitHub */}
-                <a 
+                <a
                   href="https://github.com/sh-bhatt"
-                  target="_blank" 
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-6 py-3 rounded-full border border-zinc-800 bg-zinc-900/30 text-zinc-300 text-sm font-medium tracking-wide transition-all hover:bg-zinc-100 hover:text-zinc-950 hover:border-transparent group"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>
                   GitHub
                 </a>
 
                 {/* Resume */}
-                <a 
+                <a
                   href="https://drive.google.com/file/d/1SnHC4wde-7Q9hf2234QMJIX1SK2KiC-A/view?usp=drive_link"
-                  target="_blank" 
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-6 py-3 rounded-full border border-zinc-800 bg-zinc-900/30 text-zinc-300 text-sm font-medium tracking-wide transition-all hover:bg-zinc-100 hover:text-zinc-950 hover:border-transparent group"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></svg>
                   Resume
                 </a>
               </div>
