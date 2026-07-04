@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollDissolveReveal } from "@/components/ui/scroll-dissolve-reveal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -43,10 +44,8 @@ const projects = [
 ];
 
 export default function Home() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null);
-  const midRef = useRef<HTMLDivElement>(null);
-  const frontRef = useRef<HTMLDivElement>(null);
+
+  
   const worksSectionRef = useRef<HTMLDivElement>(null);
   const leftColRef = useRef<HTMLDivElement>(null);
   const rightColRef = useRef<HTMLDivElement>(null);
@@ -95,26 +94,41 @@ export default function Home() {
       }
     });
 
-    let mm = gsap.matchMedia();
+    const mm = gsap.matchMedia();
 
     mm.add({
       isDesktop: "(min-width: 1024px)",
       isMobile: "(max-width: 1023px)"
     }, (context) => {
-      let isDesktop = context?.conditions?.isDesktop as boolean;
+      const isDesktop = context?.conditions?.isDesktop as boolean;
 
       // Phase 1: Hands glide together while maintaining their new inverted heights and tilts
+      // Movement (full duration)
       heroTl.to('#char-left', {
         x: isDesktop ? '35vw' : '9vw',
         yPercent: 0,
         scale: isDesktop ? 1.1 : 0.7,
         duration: 4
       }, 0);
+
+      // Fade (shorter duration = finishes earlier)
+      heroTl.to('#char-left', {
+        opacity: 0,
+        filter: 'blur(8px)',
+        duration: 1.5,
+      }, 0);
+
       heroTl.to('#char-right', {
         x: isDesktop ? '-35vw' : '-9vw',
         yPercent: isDesktop ? -32 : -8,
         scale: isDesktop ? 1.1 : 0.7,
         duration: 4
+      }, 0);
+
+      heroTl.to('#char-right', {
+        opacity: 0,
+        filter: 'blur(8px)',
+        duration: 1.5,
       }, 0);
 
       // Text acts as an editorial anchor: it shifts down and left smoothly
@@ -137,23 +151,17 @@ export default function Home() {
       }, 1.5);
     });
 
-    // Phase 2: Expanding Cosmic Reveal (Inside out) - Keep this OUTSIDE matchMedia
-    heroTl.to('#burn-container', {
-      clipPath: 'circle(150% at 50% 50%)',
-      duration: 4,
-      ease: 'none'
-    }, 1.1);
-
-    // Phase 3: Cosmic Name Rise (Locked to scroll wheel)
-
+    // Note: the old clip-path "burn-container" reveal tween has been removed.
+    // The background dissolve (landscape -> cosmic bg) is now handled entirely
+    // by the ScrollDissolveReveal component's own scroll-linked shader.
 
   }, []);
 
   // ── Cinematic Scroll Animations ─────────────────────────────
   useGSAP(() => {
     // Scroll Animations for About & Projects
-    const scrollElements = gsap.utils.toArray(['.fade-up-element', '.project-card']);
-    scrollElements.forEach((el: any) => {
+    const scrollElements = gsap.utils.toArray<Element>(['.fade-up-element', '.project-card']);
+    scrollElements.forEach((el) => {
       gsap.fromTo(el,
         { y: 60, opacity: 0 },
         {
@@ -234,7 +242,6 @@ export default function Home() {
             }`}
         >
           {/* Refined, Minimalist Links */}
-          {/* Refined, Minimalist Links */}
           <nav className="flex flex-col">
             {["About", "Experience", "Leadership", "Work", "Services", "Contact"].map((item) => (
               <a
@@ -268,13 +275,18 @@ export default function Home() {
             </a>
           </nav>
         </div>
-        {/* ─── HERO ─── */}
-        <section id="hero-container" className="relative w-full h-[300vh]">
-          <div id="hero-sticky" className="sticky top-0 left-0 w-full h-screen overflow-hidden bg-zinc-950">
 
-            {/* Base Layer: Renaissance Landscape & Characters (Sits at the bottom) */}
-            <div className="absolute inset-0 z-0 w-full h-full">
-              <img src="/bg-layer-1.png" alt="Renaissance Landscape" className="absolute inset-0 w-full h-full object-cover" />
+        {/* ─── HERO ─── */}
+        <section id="hero-container" className="relative w-full">
+          {/* Scroll-linked dissolve reveal: Renaissance landscape dissolves into the cosmic background as the user scrolls */}
+          <ScrollDissolveReveal
+            imageFront="/bg-layer-1.png"
+            imageBack="/space-bg.png"
+          />
+
+          {/* Overlay layer: characters, cosmic name, and hero text — pinned over the dissolve canvas */}
+          <div className="absolute inset-0 z-10">
+            <div id="hero-sticky" className="sticky top-0 left-0 w-full h-screen overflow-hidden pointer-events-none">
 
               {/* Left Character */}
               <div id="char-left" className="absolute top-[10%] -left-[10%] w-[50vw] max-w-[800px] aspect-square">
@@ -285,30 +297,24 @@ export default function Home() {
               <div id="char-right" className="absolute top-[20%] -right-[10%] w-[50vw] max-w-[800px] aspect-square">
                 <img src="/character-right-new.PNG" alt="Right Character" className="absolute inset-0 w-full h-full object-contain" />
               </div>
-            </div>
-
-            {/* Reveal Layer: Cosmic Background (Expands over everything) */}
-            <div id="burn-container" className="absolute inset-0 z-10 w-full h-full pointer-events-none" style={{ clipPath: 'circle(0% at 45% 51%)' }}>
-              <img src="/space-bg.png" alt="Cosmic Background" className="absolute inset-0 w-full h-full object-cover" />
 
               {/* Cosmic Name Reveal */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <h2 id="cosmic-name" className=" text-7xl lg:text-9xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)] will-change-transform">
+                <h2 id="cosmic-name" className="text-7xl lg:text-9xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)] will-change-transform">
                   Shubham Bhatt
                 </h2>
               </div>
+
+              {/* Text Content (Stays on top of everything) */}
+              <div id="hero-text-block" className="absolute top-1/2 left-1/2 z-20 flex flex-col items-center text-center whitespace-nowrap will-change-transform">
+                <h1 className="text-6xl lg:text-8xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)]">
+                  The<br />
+                  <span className="italic font-serif font-light bg-zinc-800">Renaissance</span><br />
+                  Portfolio
+                </h1>
+              </div>
+
             </div>
-
-            {/* Text Content (Stays on top of everything) */}
-            <div id="hero-text-block" className="absolute top-1/2 left-1/2 z-20 flex flex-col items-center text-center whitespace-nowrap will-change-transform">
-
-              <h1 className="text-6xl lg:text-8xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)]">
-                The<br />
-                <span className="italic font-serif font-light bg-zinc-800">Renaissance</span><br />
-                Portfolio
-              </h1>
-            </div>
-
           </div>
         </section>
 
@@ -321,13 +327,13 @@ export default function Home() {
             </h2>
             <div className="space-y-6 text-lg lg:text-xl text-zinc-400 leading-relaxed max-w-2xl">
               <p>
-                I'm Shubham Bhatt, a full-stack developer based in Uttar Pradesh. Currently wrapping up my B.Tech in Computer Science, I specialize in architecting high-performance web applications using React, Next.js, and TypeScript.
+                I&apos;m Shubham Bhatt, a full-stack developer based in Uttar Pradesh. Currently wrapping up my B.Tech in Computer Science, I specialize in architecting high-performance web applications using React, Next.js, and TypeScript.
               </p>
               <p>
                 My workflow bridges clean, scalable architecture with modern AI tooling—leveraging Cursor and Copilot to build and ship faster without compromising on quality. I am strictly focused on core software engineering roles where I can solve complex problems and build products that actually matter.
               </p>
               <p>
-                When I'm not pushing code, I'm usually traveling, and throwing myself into new adventures just to see where the experience takes me.
+                When I&apos;m not pushing code, I&apos;m usually traveling, and throwing myself into new adventures just to see where the experience takes me.
               </p>
             </div>
           </div>
@@ -404,7 +410,7 @@ export default function Home() {
               <h3 className="text-2xl font-medium text-zinc-100 mb-2">Lead Event Manager</h3>
               <p className="text-lg text-zinc-400 mb-6">Utkarsh Cultural Fest</p>
               <p className="text-zinc-400 leading-relaxed font-medium">
-                Orchestrated logistics, managed cross-functional teams, and executed large-scale events for MIT Moradabad's annual fest. Developed razor-sharp communication and time management skills under high-pressure scenarios.
+                Orchestrated logistics, managed cross-functional teams, and executed large-scale events for MIT Moradabad&apos;s annual fest. Developed razor-sharp communication and time management skills under high-pressure scenarios.
               </p>
             </div>
 
@@ -419,7 +425,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─── SELECTED WORKS ─── */}
         {/* ─── SELECTED WORKS ─── */}
         <section
           id="work"
@@ -482,7 +487,7 @@ export default function Home() {
                     Currently Architecting
                   </h4>
                   <h3 className="text-xl md:text-2xl font-medium tracking-tight text-zinc-100">
-                     B2B Enterprise Portal
+                    B2B Enterprise Portal
                   </h3>
                   <p className="text-sm text-zinc-400 mt-2 font-medium leading-relaxed">
                     Building a scalable enterprise portal for wholesale operations and client management.
@@ -579,7 +584,7 @@ export default function Home() {
         <footer id="contact" className="relative z-10 bg-zinc-950 w-full pt-32 pb-16 px-6 lg:px-12 border-t border-zinc-800/50 mt-32 max-w-7xl mx-auto">
           <div className="flex flex-col gap-12">
             <h2 className="text-6xl lg:text-8xl font-medium tracking-tighter text-zinc-100 leading-none">
-              Let's architect<br />
+              Let&apos;s architect<br />
               <span className="text-zinc-600">scalable software.</span>
             </h2>
 
