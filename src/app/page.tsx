@@ -40,12 +40,20 @@ const projects = [
     image: "/projects/interviewer.png",
     liveUrl: "https://major-project-oq5o.vercel.app/",
     githubUrl: "https://github.com/sh-bhatt/majorProject"
+  },
+  {
+    title: "ACRA",
+    subtitle: "An intelligent code analysis platform that combines static analysis, AI-driven reviews, complexity metrics, and security scanning to improve software quality.",
+    tags: ["Next.js", "TypeScript", "Supabase", "Groq AI"],
+    image: "/projects/acra.png",
+    liveUrl: "https://acra-web-kappa.vercel.app/",
+    githubUrl: "https://github.com/sh-bhatt/ACRA"
   }
 ];
 
 export default function Home() {
 
-  
+
   const worksSectionRef = useRef<HTMLDivElement>(null);
   const leftColRef = useRef<HTMLDivElement>(null);
   const rightColRef = useRef<HTMLDivElement>(null);
