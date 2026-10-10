@@ -1,27 +1,30 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const SITE_URL = "https://shubham-bhatt-portfolio.vercel.app";
+const TITLE = "Shubham Bhatt — Full-Stack Developer";
+const DESCRIPTION =
+  "Full-stack developer specializing in React, Next.js, TypeScript, and Node.js. Building scalable web applications and AI-powered products.";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
+// The share image comes from app/opengraph-image.tsx; Next.js adds its og:image tags automatically
 export const metadata: Metadata = {
-  title: "Shubham Bhatt | Full-Stack Developer",
-  description:
-    "Portfolio of Shubham Bhatt, a full-stack software engineer specializing in modern web architecture, React, Next.js, and TypeScript.",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "Shubham Bhatt | Full-Stack Developer",
-    description:
-      "Architecting high-performance web applications and scalable software.",
     type: "website",
+    url: "/",
+    siteName: "Shubham Bhatt",
+    locale: "en_US",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
   },
 };
 
@@ -33,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-zinc-950 text-zinc-50 antialiased selection:bg-zinc-800 selection:text-zinc-100`}
+        className="bg-zinc-950 text-zinc-50 antialiased selection:bg-zinc-800 selection:text-zinc-100"
       >
         <SmoothScroll>{children}</SmoothScroll>
       </body>

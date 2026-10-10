@@ -1,13 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollDissolveReveal } from "@/components/ui/scroll-dissolve-reveal";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// The WebGL hero (three.js) loads after the page instead of blocking it. The placeholder
+// has the component's exact height, so nothing shifts when it swaps in, and the preloader
+// covers it until it reports its first frame (onReady).
+const ScrollDissolveReveal = dynamic(
+  () => import("@/components/ui/scroll-dissolve-reveal").then((m) => m.ScrollDissolveReveal),
+  { ssr: false, loading: () => <div className="relative h-[300vh] w-full" aria-hidden="true" /> }
+);
+
+// Longest the preloader waits for the hero before revealing the page anyway (seconds)
+const HERO_READY_TIMEOUT = 2.5;
 
 const techCategories = [
   {
@@ -73,30 +84,60 @@ export default function Home() {
   const rightColRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  // The hero can finish loading before or after the preloader timeline is set up
+  const heroReadyRef = useRef(false);
+  const onHeroReadyRef = useRef<(() => void) | null>(null);
+  const handleHeroReady = useCallback(() => {
+    heroReadyRef.current = true;
+    onHeroReadyRef.current?.();
+  }, []);
 
   useGSAP(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     // Initial load state: Centered, but invisible and shifted down slightly
     gsap.set('#hero-text-block', { xPercent: -50, yPercent: -40, opacity: 0 });
 
-    // ─── MASTER INITIALIZATION TIMELINE ───
-    const initTl = gsap.timeline({
-      onComplete: () => {
-        setIsLoading(false); // Tells React to safely destroy the preloader node
-      }
-    });
+    if (reduceMotion) {
+      // No preloader and no intro: show the hero text immediately
+      gsap.set('#hero-text-block', { yPercent: -50, opacity: 1 });
+      setIsLoading(false);
+    } else {
+      // ─── MASTER INITIALIZATION TIMELINE ───
+      // Same choreography as before at twice the speed (3.8s → 1.9s). The curtain only
+      // rises once the WebGL hero has drawn its first frame (or after HERO_READY_TIMEOUT).
+      const introTl = gsap.timeline();
+      introTl.to('#loader-logo', { opacity: 1, duration: 0.5, ease: 'power2.out' })
+        // Progress line fills smoothly from left to right
+        .to('#loader-progress', { x: '0%', duration: 0.75, ease: 'power3.inOut' }, '<0.1');
 
-    initTl.to('#loader-logo', { opacity: 1, duration: 1, ease: 'power2.out' })
-      // Progress line fills smoothly from left to right
-      .to('#loader-progress', { x: '0%', duration: 1.5, ease: 'power3.inOut' }, '<0.2')
+      const revealTl = gsap.timeline({
+        paused: true,
+        onComplete: () => {
+          setIsLoading(false); // Tells React to safely destroy the preloader node
+        }
+      });
       // The entire black preloader screen slides up and out of the way
-      .to('#preloader', { yPercent: -100, duration: 1.2, ease: 'power4.inOut', delay: 0.2 })
-      // Hero text floats up and fades in EXACTLY as the curtain rises over it
-      .to('#hero-text-block', {
-        yPercent: -50,
-        opacity: 1,
-        duration: 1.5,
-        ease: 'power3.out'
-      }, '-=0.8'); // The negative offset overlaps this with the curtain rise
+      revealTl.to('#preloader', { yPercent: -100, duration: 0.6, ease: 'power4.inOut', delay: 0.1 })
+        // Hero text floats up and fades in EXACTLY as the curtain rises over it
+        .to('#hero-text-block', {
+          yPercent: -50,
+          opacity: 1,
+          duration: 0.75,
+          ease: 'power3.out'
+        }, '-=0.4'); // The negative offset overlaps this with the curtain rise
+
+      let introDone = false;
+      const tryReveal = () => {
+        if (introDone && heroReadyRef.current && revealTl.progress() === 0 && !revealTl.isActive()) revealTl.play();
+      };
+      introTl.eventCallback('onComplete', () => { introDone = true; tryReveal(); });
+      onHeroReadyRef.current = tryReveal;
+      gsap.delayedCall(HERO_READY_TIMEOUT, () => { heroReadyRef.current = true; tryReveal(); });
+    }
 
     // Left hand (Adam): Move down (positive Y), tilt up (negative rotation)
     gsap.set('#char-left', { rotation: 0, yPercent: 0, scale: 0.6 });
@@ -107,7 +148,8 @@ export default function Home() {
     // Set initial state for the cosmic name
     gsap.set('#cosmic-name', { y: '60vh', opacity: 0, scale: 0.8 });
 
-    const heroTl = gsap.timeline({
+    // With reduced motion there's no scroll scrub: the hero is shown in its finished composition
+    const heroTl = gsap.timeline(reduceMotion ? { paused: true } : {
       scrollTrigger: {
         trigger: '#hero-container',
         start: 'top top',
@@ -171,16 +213,22 @@ export default function Home() {
         duration: 3.3,
         ease: 'none'
       }, 1.5);
+
+      if (reduceMotion) heroTl.progress(1);
     });
 
     // Note: the old clip-path "burn-container" reveal tween has been removed.
     // The background dissolve (landscape -> cosmic bg) is now handled entirely
     // by the ScrollDissolveReveal component's own scroll-linked shader.
 
+    return () => { onHeroReadyRef.current = null; };
   }, []);
 
   // ── Cinematic Scroll Animations ─────────────────────────────
   useGSAP(() => {
+    // Reduced motion: content is simply shown, with no scroll-reveal
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
     // Scroll Animations for About & Projects
     const scrollElements = gsap.utils.toArray<Element>(['.fade-up-element', '.project-card']);
     scrollElements.forEach((el) => {
@@ -201,6 +249,33 @@ export default function Home() {
       );
     });
   }, []);
+
+  // ── Mobile menu keyboard support ────────────────────────────
+  // While open: focus moves into the menu, Tab cycles inside it, Escape closes it and
+  // returns focus to the toggle. While closed the menu is `inert`, so it can't be tabbed to.
+  useEffect(() => {
+    const menu = mobileMenuRef.current;
+    if (!isMobileMenuOpen || !menu) return;
+    const items = () => [...menu.querySelectorAll<HTMLElement>("a[href], button")];
+    items()[0]?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setIsMobileMenuOpen(false);
+        menuButtonRef.current?.focus();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const list = items();
+      const first = list[0], last = list[list.length - 1];
+      if (!menu.contains(document.activeElement)) { e.preventDefault(); first?.focus(); }
+      else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isMobileMenuOpen]);
 
   // ── Tech Stack pinning ──────────────────────────────────────
   // When the content fits centred in a full-height column with the heading clear of the
@@ -250,7 +325,7 @@ export default function Home() {
       <main className="w-full relative z-10">
         {/* ─── CINEMATIC PRELOADER ─── */}
         {isLoading && (
-          <div id="preloader" className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-zinc-950 will-change-transform">
+          <div id="preloader" className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-zinc-950 will-change-transform motion-reduce:hidden">
             <div id="loader-logo" className="text-4xl md:text-5xl font-bold tracking-tighter text-zinc-100 mb-8 opacity-0">SB.</div>
             <div className="w-64 h-[1px] bg-zinc-800 overflow-hidden">
               <div id="loader-progress" className="w-full h-full bg-zinc-100 -translate-x-full will-change-transform"></div>
@@ -283,12 +358,15 @@ export default function Home() {
             </a>
           </nav>
           <button
+            ref={menuButtonRef}
             type="button"
             className="block md:hidden text-zinc-100"
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Open mobile menu"
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-menu"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="3" y1="6" x2="21" y2="6"></line>
               <line x1="3" y1="12" x2="21" y2="12"></line>
               <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -304,6 +382,9 @@ export default function Home() {
 
         {/* 2. The Small Dropdown Box */}
         <div
+          id="mobile-menu"
+          ref={mobileMenuRef}
+          inert={!isMobileMenuOpen}
           className={`fixed top-20 right-6 z-[60] w-48 flex flex-col bg-zinc-950/65 backdrop-blur-2xl border border-zinc-800/60 rounded-2xl p-2 shadow-2xl transition-all duration-300 origin-top-right md:hidden ${isMobileMenuOpen ? "scale-100 opacity-100 pointer-events-auto" : "scale-95 opacity-0 pointer-events-none"
             }`}
         >
@@ -317,7 +398,7 @@ export default function Home() {
                 className="text-sm font-medium tracking-wide text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 transition-all px-4 py-3 rounded-xl flex justify-between items-center group"
               >
                 <span>{item}</span>
-                <span className="text-zinc-600 group-hover:text-zinc-400 transition-colors text-xs font-light">↗</span>
+                <span aria-hidden="true" className="text-zinc-600 group-hover:text-zinc-400 transition-colors text-xs font-light">↗</span>
               </a>
             ))}
 
@@ -333,7 +414,7 @@ export default function Home() {
               className="text-sm font-medium tracking-wide text-zinc-200 hover:text-zinc-100 hover:bg-zinc-800/50 transition-all px-4 py-3 rounded-xl flex justify-between items-center group"
             >
               <span>Resume</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500 group-hover:text-zinc-300 transition-colors">
+              <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500 group-hover:text-zinc-300 transition-colors">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -348,6 +429,7 @@ export default function Home() {
           <ScrollDissolveReveal
             imageFront="/bg-layer-1.webp"
             imageBack="/space-bg.webp"
+            onReady={handleHeroReady}
           />
 
           {/* Overlay layer: characters, cosmic name, and hero text — pinned over the dissolve canvas */}
@@ -356,28 +438,28 @@ export default function Home() {
 
               {/* Left Character */}
               <div id="char-left" className="absolute top-[10%] -left-[10%] w-[50vw] max-w-[800px] aspect-square">
-                <img src="/character-left-new.PNG" alt="Left Character" className="absolute inset-0 w-full h-full object-contain" />
+                <img src="/character-left-new.PNG" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-contain" />
               </div>
 
               {/* Right Character */}
               <div id="char-right" className="absolute top-[20%] -right-[10%] w-[50vw] max-w-[800px] aspect-square">
-                <img src="/character-right-new.PNG" alt="Right Character" className="absolute inset-0 w-full h-full object-contain" />
+                <img src="/character-right-new.PNG" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-contain" />
               </div>
 
               {/* Cosmic Name Reveal */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <h2 id="cosmic-name" className="text-7xl lg:text-9xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)] will-change-transform">
+                <h1 id="cosmic-name" className="text-7xl lg:text-9xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)] will-change-transform">
                   Shubham Bhatt
-                </h2>
+                </h1>
               </div>
 
               {/* Text Content (Stays on top of everything) */}
               <div id="hero-text-block" className="absolute top-1/2 left-1/2 z-20 flex flex-col items-center text-center whitespace-nowrap will-change-transform">
-                <h1 className="text-6xl lg:text-8xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)]">
+                <h2 className="text-6xl lg:text-8xl font-semibold tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)]">
                   The<br />
                   <span className="italic font-serif font-light bg-zinc-800">Renaissance</span><br />
                   Portfolio
-                </h1>
+                </h2>
               </div>
 
             </div>
@@ -406,7 +488,7 @@ export default function Home() {
 
           {/* Right Column: Glassmorphic Portrait Slot */}
           <div className="fade-up-element w-full lg:w-2/5 will-change-transform">
-            <div className="aspect-[4/5] w-full max-w-md mx-auto bg-zinc-900/30 rounded-3xl border border-zinc-800/50 backdrop-blur-md overflow-hidden relative group p-2">
+            <div className="aspect-[4/5] w-full max-w-md mx-auto bg-zinc-900/30 rounded-3xl border border-zinc-800/50 overflow-hidden relative group p-2">
               <div className="w-full h-full rounded-2xl bg-zinc-900 relative overflow-hidden">
                 <Image src="/portrait-new-1.PNG" alt="Shubham Bhatt" fill sizes="(min-width: 496px) 432px, calc(100vw - 64px)" className="object-cover transition-transform duration-1000 group-hover:scale-105 grayscale hover:grayscale-0" />
               </div>
@@ -420,7 +502,7 @@ export default function Home() {
             Experience
           </h2>
           <div className="flex flex-col gap-8 fade-up-element will-change-transform">
-            <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 fade-up-element will-change-transform">
+            <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 fade-up-element will-change-transform">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                 <div>
                   <h3 className="text-2xl font-medium text-zinc-100 mb-1">Web Development Intern</h3>
@@ -457,7 +539,7 @@ export default function Home() {
               </div>
 
               {/* Tech Stack */}
-              <div className="pt-6 border-t border-zinc-800/50 text-sm font-medium text-zinc-500 tracking-wide">
+              <div className="pt-6 border-t border-zinc-800/50 text-sm font-medium text-zinc-400 tracking-wide">
                 Next.js · TypeScript · React · Tailwind CSS · GraphQL · Prisma ORM · SQL Databases
               </div>
             </div>
@@ -472,7 +554,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 fade-up-element will-change-transform">
             {/* Card 1: Utkarsh */}
-            <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
+            <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
               <h3 className="text-2xl font-medium text-zinc-100 mb-2">Lead Event Manager</h3>
               <p className="text-lg text-zinc-400 mb-6">Utkarsh Cultural Fest</p>
               <p className="text-zinc-400 leading-relaxed font-medium">
@@ -481,7 +563,7 @@ export default function Home() {
             </div>
 
             {/* Card 2: Football */}
-            <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
+            <div className="group relative flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
               <h3 className="text-2xl font-medium text-zinc-100 mb-2">Elite Athletic Training</h3>
               <p className="text-lg text-zinc-400 mb-6">Baichung Bhutia Football Academy</p>
               <p className="text-zinc-400 leading-relaxed font-medium">
@@ -514,7 +596,7 @@ export default function Home() {
               <div className="flex flex-col gap-10 short:gap-5">
                 {techCategories.map((category, index) => (
                   <div key={index} className="flex flex-col gap-4 short:gap-2">
-                    <h3 className="text-sm font-semibold tracking-widest text-zinc-500 uppercase">
+                    <h3 className="text-sm font-semibold tracking-widest text-zinc-400 uppercase">
                       {category.title}
                     </h3>
                     <div className="flex flex-wrap gap-2.5 short:gap-y-1.5">
@@ -541,7 +623,7 @@ export default function Home() {
               {projects.map((project, i) => (
                 <div
                   key={i}
-                  className="project-card flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 will-change-transform group"
+                  className="project-card flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 will-change-transform group"
                 >
                   {/* Image Container */}
                   <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-8 bg-zinc-900 border border-zinc-800/50">
@@ -607,19 +689,19 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Card 1 */}
-            <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
+            <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700">
               <h3 className="text-xl font-medium text-zinc-100 mb-4">Full-Stack Development</h3>
               <p className="text-zinc-400 leading-relaxed">End-to-end web applications built with modern frameworks, clean architecture, and scalable infrastructure.</p>
             </div>
 
             {/* Card 2 */}
-            <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 delay-100">
+            <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 delay-100">
               <h3 className="text-xl font-medium text-zinc-100 mb-4">API Design & Integration</h3>
               <p className="text-zinc-400 leading-relaxed">RESTful and GraphQL APIs designed for performance, security, and maintainability.</p>
             </div>
 
             {/* Card 3 */}
-            <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-md fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 delay-200">
+            <div className="flex flex-col p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 fade-up-element will-change-transform transition-colors duration-500 hover:bg-zinc-800/40 hover:border-zinc-700 delay-200">
               <h3 className="text-xl font-medium text-zinc-100 mb-4">System Architecture</h3>
               <p className="text-zinc-400 leading-relaxed">Database schema design, cloud deployment strategies, and system-level optimizations.</p>
             </div>
@@ -631,7 +713,7 @@ export default function Home() {
           <div className="flex flex-col gap-12">
             <h2 className="text-6xl lg:text-8xl font-medium tracking-tighter text-zinc-100 leading-none">
               Let&apos;s architect<br />
-              <span className="text-zinc-600">scalable software.</span>
+              <span className="text-zinc-500">scalable software.</span>
             </h2>
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mt-12">
@@ -651,7 +733,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-6 py-3 rounded-full border border-zinc-800 bg-zinc-900/30 text-zinc-300 text-sm font-medium tracking-wide transition-all hover:bg-zinc-100 hover:text-zinc-950 hover:border-transparent group"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect width="4" height="12" x="2" y="9" /><circle cx="4" cy="4" r="2" /></svg>
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect width="4" height="12" x="2" y="9" /><circle cx="4" cy="4" r="2" /></svg>
                   LinkedIn
                 </a>
 
@@ -662,7 +744,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-6 py-3 rounded-full border border-zinc-800 bg-zinc-900/30 text-zinc-300 text-sm font-medium tracking-wide transition-all hover:bg-zinc-100 hover:text-zinc-950 hover:border-transparent group"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>
                   GitHub
                 </a>
 
@@ -673,7 +755,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-6 py-3 rounded-full border border-zinc-800 bg-zinc-900/30 text-zinc-300 text-sm font-medium tracking-wide transition-all hover:bg-zinc-100 hover:text-zinc-950 hover:border-transparent group"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></svg>
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></svg>
                   Resume
                 </a>
               </div>
@@ -683,14 +765,14 @@ export default function Home() {
           {/* ─── PROFESSIONAL SIGNATURE BAR ─── */}
           <div className="mt-32 pt-8 border-t border-zinc-900/50 flex flex-col gap-6 fade-up-element will-change-transform pb-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
-              <p className="text-zinc-500 tracking-wide">
+              <p className="text-zinc-400 tracking-wide">
                 Architected with precision by <span className="text-zinc-200 font-medium">Shubham Bhatt</span>
               </p>
-              <p className="text-zinc-600 tracking-widest uppercase text-xs font-medium">
+              <p className="text-zinc-400 tracking-widest uppercase text-xs font-medium">
                 SCULPTED LOGIC • ENDURING ARCHITECTURE
               </p>
             </div>
-            <div className="text-center md:text-left text-zinc-700 text-xs tracking-wider font-medium flex items-center justify-center md:justify-start gap-1.5">
+            <div className="text-center md:text-left text-zinc-400 text-xs tracking-wider font-medium flex items-center justify-center md:justify-start gap-1.5">
               &copy; {new Date().getFullYear()} Shubham Bhatt. All rights reserved.
             </div>
           </div>

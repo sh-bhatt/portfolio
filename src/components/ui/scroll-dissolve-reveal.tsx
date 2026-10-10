@@ -245,9 +245,10 @@ interface SceneProps {
   imageFront: string;
   imageBack: string;
   scrollYProgress: MotionValue<number>;
+  onReady?: () => void;
 }
 
-const Scene = ({ imageFront, imageBack, scrollYProgress }: SceneProps) => {
+const Scene = ({ imageFront, imageBack, scrollYProgress, onReady }: SceneProps) => {
   const [texture1, texture2] = useTexture([imageFront, imageBack]);
   const material1Ref = useRef<THREE.ShaderMaterial>(null);
   const material2Ref = useRef<THREE.ShaderMaterial>(null);
@@ -258,6 +259,13 @@ const Scene = ({ imageFront, imageBack, scrollYProgress }: SceneProps) => {
   // frameloop="demand" we only draw when progress changes. Progress is clamped to 0–1,
   // so once the hero is scrolled past, nothing invalidates and the canvas stops drawing.
   useEffect(() => scrollYProgress.on("change", () => invalidate()), [scrollYProgress, invalidate]);
+
+  // Scene only mounts once both textures have loaded (Suspense); report after its first frame is on screen
+  useEffect(() => {
+    let second = 0;
+    const first = requestAnimationFrame(() => { second = requestAnimationFrame(() => onReady?.()); });
+    return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); };
+  }, [onReady]);
 
  const uniforms1 = useMemo(
   () => ({
@@ -366,6 +374,8 @@ export interface ScrollDissolveRevealProps {
   className?: string;
   containerClassName?: string;
   scrollContainerRef?: React.RefObject<HTMLElement | null>;
+  /** Called once the textures are loaded and the first frame has been drawn */
+  onReady?: () => void;
 }
 
 export function ScrollDissolveReveal({
@@ -374,6 +384,7 @@ export function ScrollDissolveReveal({
   className,
   containerClassName,
   scrollContainerRef,
+  onReady,
 }: ScrollDissolveRevealProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -387,7 +398,7 @@ export function ScrollDissolveReveal({
       ref={containerRef}
       className={cn("relative h-[300vh] w-full", containerClassName)}
     >
-      <div className={cn("sticky top-0 h-screen w-full", className)}>
+      <div className={cn("sticky top-0 h-screen w-full", className)} aria-hidden="true">
         <Canvas frameloop="demand" dpr={[1, 1.5]}>
           <OrthographicCamera
             makeDefault
@@ -405,6 +416,7 @@ export function ScrollDissolveReveal({
               imageFront={imageFront}
               imageBack={imageBack}
               scrollYProgress={scrollYProgress}
+              onReady={onReady}
             />
           </React.Suspense>
         </Canvas>
