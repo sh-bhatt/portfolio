@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Desktop windows shorter than 900px (e.g. 1920x1080 at 125–150% scaling) */
+@custom-variant short {
+  @media (width >= 64rem) and (height < 900px) {
+    @slot;
+  }
+}
+
 body {
   background-color: #050505;
   color: #e5e5e5;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -200,6 +200,49 @@ export default function Home() {
         }
       );
     });
+  }, []);
+
+  // ── Tech Stack pinning ──────────────────────────────────────
+  // When the content fits centred in a full-height column with the heading clear of the
+  // fixed header, keep the original layout (h-screen, centred, pinned at top 0).
+  // Otherwise switch to a content-height column ("compact") whose sticky top is
+  // min(headerHeight, viewportHeight - columnHeight): pinned just below the header if it
+  // fits, or pinned once its last pill is fully visible ("sticky bottom") if it doesn't.
+  useEffect(() => {
+    const col = leftColRef.current;
+    const header = document.querySelector("header");
+    if (!col || !header) return;
+    const desktop = window.matchMedia("(min-width: 1024px)");
+
+    const update = () => {
+      const reset = () => { delete col.dataset.fit; col.style.top = ""; };
+      if (!desktop.matches) return reset();
+
+      const kids = col.children;
+      const contentHeight = kids[kids.length - 1].getBoundingClientRect().bottom - kids[0].getBoundingClientRect().top;
+      const headerHeight = header.getBoundingClientRect().height;
+      const viewportHeight = window.innerHeight;
+      if ((viewportHeight - contentHeight) / 2 >= headerHeight) return reset();
+
+      col.dataset.fit = "compact";
+      const style = getComputedStyle(col);
+      const columnHeight = contentHeight + parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+      col.style.top = `${Math.min(headerHeight, viewportHeight - columnHeight)}px`;
+    };
+
+    update();
+    // Children change size on font load / text wrap; the header and viewport on resize
+    const observer = new ResizeObserver(update);
+    [...col.children, header].forEach((el) => observer.observe(el));
+    window.addEventListener("resize", update, { passive: true });
+    desktop.addEventListener("change", update);
+    document.fonts?.ready.then(update);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", update);
+      desktop.removeEventListener("change", update);
+    };
   }, []);
 
   return (
@@ -458,23 +501,23 @@ export default function Home() {
             {/* Left column — pinned */}
             <div
               ref={leftColRef}
-              className="lg:w-1/2 w-full lg:[@media(min-height:960px)]:sticky xl:[@media(min-height:880px)]:sticky lg:top-0 lg:self-start flex flex-col justify-center px-8 py-16 min-h-screen"
+              className="lg:w-1/2 w-full lg:sticky lg:top-0 lg:self-start flex flex-col justify-center px-8 py-16 min-h-screen lg:h-screen lg:data-[fit=compact]:h-auto lg:data-[fit=compact]:min-h-0 short:py-6"
             >
-              <h2 className="text-4xl sm:text-5xl font-medium tracking-tight text-zinc-100 mb-6">
+              <h2 className="text-4xl sm:text-5xl font-medium tracking-tight text-zinc-100 mb-6 short:mb-3">
                 Tech Stack
               </h2>
 
-              <p className="text-lg text-zinc-400 mb-12 leading-relaxed max-w-md font-medium">
+              <p className="text-lg text-zinc-400 mb-12 short:mb-5 leading-relaxed max-w-md font-medium">
                 A curated architecture of modern tooling designed for scalable infrastructure, high-performance rendering, and a seamless developer experience.
               </p>
 
-              <div className="flex flex-col gap-10">
+              <div className="flex flex-col gap-10 short:gap-5">
                 {techCategories.map((category, index) => (
-                  <div key={index} className="flex flex-col gap-4">
+                  <div key={index} className="flex flex-col gap-4 short:gap-2">
                     <h3 className="text-sm font-semibold tracking-widest text-zinc-500 uppercase">
                       {category.title}
                     </h3>
-                    <div className="flex flex-wrap gap-2.5">
+                    <div className="flex flex-wrap gap-2.5 short:gap-y-1.5">
                       {category.skills.map((tech) => (
                         <span
                           key={tech}
