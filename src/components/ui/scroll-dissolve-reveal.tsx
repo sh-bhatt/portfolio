@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useTexture, OrthographicCamera } from "@react-three/drei";
 import * as THREE from "three";
@@ -252,6 +252,12 @@ const Scene = ({ imageFront, imageBack, scrollYProgress }: SceneProps) => {
   const material1Ref = useRef<THREE.ShaderMaterial>(null);
   const material2Ref = useRef<THREE.ShaderMaterial>(null);
   const { size } = useThree();
+  const invalidate = useThree((state) => state.invalidate);
+
+  // The shaders only depend on scroll progress (uTime isn't used visually), so with
+  // frameloop="demand" we only draw when progress changes. Progress is clamped to 0–1,
+  // so once the hero is scrolled past, nothing invalidates and the canvas stops drawing.
+  useEffect(() => scrollYProgress.on("change", () => invalidate()), [scrollYProgress, invalidate]);
 
  const uniforms1 = useMemo(
   () => ({
@@ -382,7 +388,7 @@ export function ScrollDissolveReveal({
       className={cn("relative h-[300vh] w-full", containerClassName)}
     >
       <div className={cn("sticky top-0 h-screen w-full", className)}>
-        <Canvas>
+        <Canvas frameloop="demand" dpr={[1, 1.5]}>
           <OrthographicCamera
             makeDefault
             manual

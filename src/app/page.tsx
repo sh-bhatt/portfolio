@@ -16,30 +16,44 @@ const techCategories = [
   },
   {
     title: "Backend",
-    skills: ["Node.js", "Express.js", "GraphQL", "PostgreSQL", "MongoDB", "Redis", "Prisma ORM", "Supabase", "JWT & Clerk", "API Design"]
+    skills: ["Node.js", "Express.js", "Hono", "REST APIs", "GraphQL", "PostgreSQL", "MongoDB", "Redis", "Prisma ORM", "Supabase", "JWT & Clerk", "API Design"]
   },
   {
     title: "Tools & DevOps",
-    skills: ["Git & GitHub", "Docker", "Vercel", "ImageKit.io", "VS Code", "AI Tooling (Cursor, Copilot)"]
+    skills: ["Git & GitHub", "Docker", "Vercel", "Cloudflare (Workers, R2, Hyperdrive)", "Neon", "Turborepo", "VS Code", "Groq AI", "AI Tooling (Cursor, Copilot)"]
   }
 ];
 
-const projects = [
+const projects: {
+  title: string;
+  subtitle: string;
+  tags: string[];
+  image: string;
+  liveUrl: string;
+  githubUrl?: string;
+}[] = [
+  {
+    title: "PartyMan",
+    subtitle: "A production-grade event and invitation platform with draft/publish lifecycles, RSVP workflows, and access-protected guest data, running on Cloudflare's edge.",
+    tags: ["Next.js", "TypeScript", "Hono", "Cloudflare Workers", "PostgreSQL"],
+    image: "/projects/partyman.png",
+    liveUrl: "https://party-man.vercel.app/"
+  },
+  {
+    title: "The Interviewer",
+    subtitle: "An AI mock interview platform that parses resumes, generates personalized technical interviews, and delivers scored, topic-level feedback.",
+    tags: ["Next.js", "TypeScript", "Supabase", "Groq AI", "Tailwind CSS"],
+    image: "/projects/interviewer.png",
+    liveUrl: "https://major-project-oq5o.vercel.app/",
+    githubUrl: "https://github.com/sh-bhatt/majorProject"
+  },
   {
     title: "MeterFlow",
-    subtitle: "A scalable API gateway and billing platform featuring rate limiting, authentication, and Razorpay subscription integration.",
+    subtitle: "An API metering and billing platform with API-key authentication, Redis-backed rate limiting, request logging, and usage-based Razorpay billing.",
     tags: ["React", "Node.js", "Express", "Redis", "MongoDB"],
     image: "/projects/meterflow.png",
     liveUrl: "https://api-bar.vercel.app/",
     githubUrl: "https://github.com/sh-bhatt/ApiBar"
-  },
-  {
-    title: "The Interviewer",
-    subtitle: "A dynamic preparation platform that generates role-based technical questions and simulates structured interview flows.",
-    tags: ["Next.js", "TypeScript", "Prisma", "Tailwind CSS"],
-    image: "/projects/interviewer.png",
-    liveUrl: "https://major-project-oq5o.vercel.app/",
-    githubUrl: "https://github.com/sh-bhatt/majorProject"
   },
   {
     title: "ACRA",
@@ -179,7 +193,8 @@ export default function Home() {
           ease: 'power3.out',
           scrollTrigger: {
             trigger: el,
-            start: 'top 85%',
+            // Footer elements sit too close to the page end to ever reach 85%, so reveal them on entry
+            start: el.closest('footer') ? 'top bottom' : 'top 85%',
             toggleActions: 'play none none reverse',
           },
         }
@@ -288,8 +303,8 @@ export default function Home() {
         <section id="hero-container" className="relative w-full">
           {/* Scroll-linked dissolve reveal: Renaissance landscape dissolves into the cosmic background as the user scrolls */}
           <ScrollDissolveReveal
-            imageFront="/bg-layer-1.png"
-            imageBack="/space-bg.png"
+            imageFront="/bg-layer-1.webp"
+            imageBack="/space-bg.webp"
           />
 
           {/* Overlay layer: characters, cosmic name, and hero text — pinned over the dissolve canvas */}
@@ -335,10 +350,10 @@ export default function Home() {
             </h2>
             <div className="space-y-6 text-lg lg:text-xl text-zinc-400 leading-relaxed max-w-2xl">
               <p>
-                I&apos;m Shubham Bhatt, a full-stack developer based in Uttar Pradesh. Currently wrapping up my B.Tech in Computer Science, I specialize in architecting high-performance web applications using React, Next.js, and TypeScript.
+                I&apos;m Shubham Bhatt, a full-stack developer based in Uttar Pradesh. Currently wrapping up my B.Tech in Computer Science, I specialize in architecting high-performance web applications using React, Next.js, TypeScript, and Node.js.
               </p>
               <p>
-                My workflow bridges clean, scalable architecture with modern AI tooling—leveraging Cursor and Copilot to build and ship faster without compromising on quality. I am strictly focused on core software engineering roles where I can solve complex problems and build products that actually matter.
+                My workflow bridges clean, scalable architecture with modern AI — both in the tools I use, like Cursor and Copilot, and in the products I build, from AI-powered interview platforms to intelligent code analysis tools. I am strictly focused on core software engineering roles where I can solve complex problems and build products that actually matter.
               </p>
               <p>
                 When I&apos;m not pushing code, I&apos;m usually traveling, and throwing myself into new adventures just to see where the experience takes me.
@@ -350,7 +365,7 @@ export default function Home() {
           <div className="fade-up-element w-full lg:w-2/5 will-change-transform">
             <div className="aspect-[4/5] w-full max-w-md mx-auto bg-zinc-900/30 rounded-3xl border border-zinc-800/50 backdrop-blur-md overflow-hidden relative group p-2">
               <div className="w-full h-full rounded-2xl bg-zinc-900 relative overflow-hidden">
-                <Image src="/portrait-new-1.PNG" alt="Shubham Bhatt" fill className="object-cover transition-transform duration-1000 group-hover:scale-105 grayscale hover:grayscale-0" />
+                <Image src="/portrait-new-1.PNG" alt="Shubham Bhatt" fill sizes="(min-width: 496px) 432px, calc(100vw - 64px)" className="object-cover transition-transform duration-1000 group-hover:scale-105 grayscale hover:grayscale-0" />
               </div>
             </div>
           </div>
@@ -376,15 +391,15 @@ export default function Home() {
               </div>
 
               <p className="text-zinc-200 leading-relaxed mb-6 font-medium">
-                Contributing to production-grade full-stack applications with focus on scalability and performance.
+                Contributed to production-grade full-stack applications with a focus on scalability and performance.
               </p>
 
               <ul className="list-disc list-outside ml-5 text-zinc-400 space-y-4 mb-8 leading-relaxed max-w-4xl">
                 <li>
-                  Built full-stack applications using Next.js, TypeScript, and GraphQL with Prisma ORM, managing complex database relationships and improving system efficiency.
+                  Built full-stack applications using Next.js, TypeScript, React, and Tailwind CSS, with reusable component architectures and responsive workflows.
                 </li>
                 <li>
-                  Implemented caching strategies and optimized API workflows with engineering teams.
+                  Integrated GraphQL APIs and Prisma ORM for type-safe database access and relational modeling, and optimized API workflows with caching strategies alongside engineering teams.
                 </li>
               </ul>
 
@@ -400,7 +415,7 @@ export default function Home() {
 
               {/* Tech Stack */}
               <div className="pt-6 border-t border-zinc-800/50 text-sm font-medium text-zinc-500 tracking-wide">
-                Next.js · TypeScript · GraphQL · Prisma ORM · SQL Databases · MongoDB
+                Next.js · TypeScript · React · Tailwind CSS · GraphQL · Prisma ORM · SQL Databases
               </div>
             </div>
           </div>
@@ -443,7 +458,7 @@ export default function Home() {
             {/* Left column — pinned */}
             <div
               ref={leftColRef}
-              className="lg:w-1/2 w-full lg:sticky lg:top-0 lg:self-start flex flex-col justify-center px-8 py-16 h-screen"
+              className="lg:w-1/2 w-full lg:[@media(min-height:960px)]:sticky xl:[@media(min-height:880px)]:sticky lg:top-0 lg:self-start flex flex-col justify-center px-8 py-16 min-h-screen"
             >
               <h2 className="text-4xl sm:text-5xl font-medium tracking-tight text-zinc-100 mb-6">
                 Tech Stack
@@ -479,30 +494,6 @@ export default function Home() {
               ref={rightColRef}
               className="lg:w-1/2 w-full flex flex-col gap-8 px-8 py-16"
             >
-              {/* ─── ACTIVE PROJECT BANNER ─── */}
-              <div className="flex items-start sm:items-center gap-5 p-6 md:p-8 rounded-3xl bg-zinc-900/40 border border-emerald-900/30 backdrop-blur-md will-change-transform project-card relative overflow-hidden group">
-                {/* Subtle green glow behind the card */}
-                <div className="absolute top-0 left-0 w-full h-full bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-
-                {/* Pulsing Green Indicator */}
-                <div className="relative flex h-3 w-3 mt-1.5 sm:mt-0 flex-shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                </div>
-
-                <div className="relative z-10">
-                  <h4 className="text-xs font-semibold tracking-widest uppercase text-emerald-500 mb-1.5">
-                    Currently Architecting
-                  </h4>
-                  <h3 className="text-xl md:text-2xl font-medium tracking-tight text-zinc-100">
-                    B2B Enterprise Portal
-                  </h3>
-                  <p className="text-sm text-zinc-400 mt-2 font-medium leading-relaxed">
-                    Building a scalable enterprise portal for wholesale operations and client management.
-                  </p>
-                </div>
-              </div>
-
               {/* Existing Completed Projects */}
               {projects.map((project, i) => (
                 <div
@@ -511,9 +502,11 @@ export default function Home() {
                 >
                   {/* Image Container */}
                   <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-8 bg-zinc-900 border border-zinc-800/50">
-                    <img
+                    <Image
                       src={project.image}
                       alt={project.title}
+                      fill
+                      sizes="(min-width: 1280px) 508px, (min-width: 1024px) calc(50vw - 128px), calc(100vw - 128px)"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
                     />
                   </div>
@@ -546,14 +539,16 @@ export default function Home() {
                     >
                       Live Site ↗
                     </a>
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-6 py-3 rounded-full border border-zinc-700 text-zinc-300 text-sm font-medium tracking-wide transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-                    >
-                      GitHub ↗
-                    </a>
+                    {project.githubUrl && (
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-3 rounded-full border border-zinc-700 text-zinc-300 text-sm font-medium tracking-wide transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                      >
+                        GitHub ↗
+                      </a>
+                    )}
                   </div>
                 </div>
               ))}

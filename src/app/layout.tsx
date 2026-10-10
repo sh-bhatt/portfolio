@@ -31,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-zinc-950 text-zinc-50 antialiased selection:bg-zinc-800 selection:text-zinc-100`}
       >
